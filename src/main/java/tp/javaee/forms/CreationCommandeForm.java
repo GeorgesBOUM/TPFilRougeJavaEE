@@ -11,7 +11,7 @@ import tp.javaee.beans.Client;
 import tp.javaee.beans.Commande;
 
 public final class CreationCommandeForm {
-	private static final String CHAMP_DATE             = "dateCommande";
+//	private static final String CHAMP_DATE             = "dateCommande";
     private static final String CHAMP_MONTANT          = "montantCommande";
     private static final String CHAMP_MODE_PAIEMENT    = "modePaiementCommande";
     private static final String CHAMP_STATUT_PAIEMENT  = "statutPaiementCommande";
