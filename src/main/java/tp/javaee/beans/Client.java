@@ -7,6 +7,7 @@ public class Client {
     private String adresse;
     private String telephone;
     private String email;
+    private String image;
 
     public void setNom( String nom ) {
         this.nom = nom;
@@ -26,6 +27,14 @@ public class Client {
 
     public void setAdresse( String adresse ) {
         this.adresse = adresse;
+    }
+    
+    public void setImage( String image ) {
+        this.image = image;
+    }
+    
+    public String getImage() {
+        return image;
     }
 
     public String getAdresse() {
