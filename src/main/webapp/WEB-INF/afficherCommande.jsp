@@ -18,6 +18,7 @@
             <p>Adresse : <c:out value="${ commande.client.adresse }"/></p>
             <p>Numéro de téléphone : <c:out value="${ commande.client.telephone }"/></p>
             <p>Email : <c:out value="${ commande.client.email }"/></p>
+            <p>Image : <c:out value="${ commande.client.image }"/></p>
             <p>Commande</p>
             <p>Date  : <c:out value="${ commande.date }"/></p> 
             <p>Montant  : <c:out value="${ commande.montant }"/></p> 
