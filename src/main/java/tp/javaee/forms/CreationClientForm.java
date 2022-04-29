@@ -50,35 +50,35 @@ public final class CreationClientForm {
 
         try {
             validationNom( nom );
-        } catch ( Exception e ) {
+        } catch ( FormValidationException e ) {
             setErreur( CHAMP_NOM, e.getMessage() );
         }
         client.setNom( nom );
 
         try {
             validationPrenom( prenom );
-        } catch ( Exception e ) {
+        } catch ( FormValidationException e ) {
             setErreur( CHAMP_PRENOM, e.getMessage() );
         }
         client.setPrenom( prenom );
 
         try {
             validationAdresse( adresse );
-        } catch ( Exception e ) {
+        } catch ( FormValidationException e ) {
             setErreur( CHAMP_ADRESSE, e.getMessage() );
         }
         client.setAdresse( adresse );
 
         try {
             validationTelephone( telephone );
-        } catch ( Exception e ) {
+        } catch ( FormValidationException e ) {
             setErreur( CHAMP_TELEPHONE, e.getMessage() );
         }
         client.setTelephone( telephone );
 
         try {
             validationEmail( email );
-        } catch ( Exception e ) {
+        } catch ( FormValidationException e ) {
             setErreur( CHAMP_EMAIL, e.getMessage() );
         }
         client.setEmail( email );
@@ -99,7 +99,7 @@ public final class CreationClientForm {
         return client;
     }
 
-    private void validationNom( String nom ) throws Exception {
+    private void validationNom( String nom ) throws FormValidationException {
         if ( nom != null ) {
             if ( nom.length() < 2 ) {
                 throw new FormValidationException( "Le nom d'utilisateur doit contenir au moins 2 caractères." );
@@ -109,13 +109,13 @@ public final class CreationClientForm {
         }
     }
 
-    private void validationPrenom( String prenom ) throws Exception {
+    private void validationPrenom( String prenom ) throws FormValidationException {
         if ( prenom != null && prenom.length() < 2 ) {
             throw new FormValidationException( "Le prénom d'utilisateur doit contenir au moins 2 caractères." );
         }
     }
 
-    private void validationAdresse( String adresse ) throws Exception {
+    private void validationAdresse( String adresse ) throws FormValidationException {
         if ( adresse != null ) {
             if ( adresse.length() < 10 ) {
                 throw new FormValidationException( "L'adresse de livraison doit contenir au moins 10 caractères." );
@@ -125,7 +125,7 @@ public final class CreationClientForm {
         }
     }
 
-    private void validationTelephone( String telephone ) throws Exception {
+    private void validationTelephone( String telephone ) throws FormValidationException {
         if ( telephone != null ) {
             if ( !telephone.matches( "^\\d+$" ) ) {
                 throw new FormValidationException( "Le numéro de téléphone doit uniquement contenir des chiffres." );
@@ -137,7 +137,7 @@ public final class CreationClientForm {
         }
     }
 
-    private void validationEmail( String email ) throws Exception {
+    private void validationEmail( String email ) throws FormValidationException {
         if ( email != null && !email.matches( "([^.@]+)(\\.[^.@]+)*@([^.@]+\\.)+([^.@]+)" ) ) {
             throw new FormValidationException( "Merci de saisir une adresse mail valide." );
         }
