@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,11 +20,19 @@ import tp.javaee.forms.CreationCommandeForm;
 /**
  * Servlet implementation class CreationCommande
  */
-@WebServlet(name = "creationCommande", urlPatterns = { "/creationCommande" })
+@WebServlet(
+		name = "creationCommande", urlPatterns = { "/creationCommande" },
+		initParams = @WebInitParam(name="chemin", value="/fichiers/images/")
+		)
+@MultipartConfig(
+		fileSizeThreshold = 1048576, location = "C:/Users/geboum/fichiers",
+		maxFileSize = 2097152, maxRequestSize = 52428800
+		)
 public class CreationCommande extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/* Constantes */
+	public static final String CHEMIN       = "chemin";
 	public static final String ATT_COMMANDE = "commande";
     public static final String ATT_FORM     = "form";
     public static final String SESSION_CLIENTS   = "clients";
@@ -51,11 +61,18 @@ public class CreationCommande extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		/*
+         * Lecture du paramètre 'chemin' passé à la servlet via la déclaration
+         * dans le web.xml
+         */
+        String chemin = this.getServletConfig().getInitParameter( CHEMIN );
+		
 		/* Préparation de l'objet formulaire */
         CreationCommandeForm form = new CreationCommandeForm();
 
         /* Traitement de la requête et récupération du bean en résultant */
-        Commande commande = form.creerCommande( request );
+        Commande commande = form.creerCommande( request, chemin );
 
         /* Ajout du bean et de l'objet métier à l'objet requête */
         request.setAttribute( ATT_COMMANDE, commande );
