@@ -88,6 +88,7 @@ public final class CreationCommandeForm {
         String statutPaiement = getValeurChamp( request, CHAMP_STATUT_PAIEMENT );
         String modeLivraison = getValeurChamp( request, CHAMP_MODE_LIVRAISON );
         String statutLivraison = getValeurChamp( request, CHAMP_STATUT_LIVRAISON );
+        
 
         Commande commande = new Commande();
 
