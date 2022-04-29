@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,12 +19,20 @@ import tp.javaee.forms.CreationClientForm;
 /**
  * Servlet implementation class CreationClient
  */
-@WebServlet(name = "creationClient", urlPatterns = { "/creationClient" })
+@WebServlet(
+		name = "creationClient", 
+		urlPatterns = { "/creationClient" },
+		initParams = {@WebInitParam(name="chemin", value = "/fichier/images/")}
+		)
+@MultipartConfig(
+		fileSizeThreshold = 1048576, location = "C:/Users/geboum/fichiers",
+		maxFileSize = 2097152, maxRequestSize = 52428800
+		)
 public class CreationClient extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/* Constantes */
- 
+	public static final String CHEMIN     = "chemin";
 	public static final String ATT_CLIENT = "client";
     public static final String ATT_FORM   = "form";
     public static final String SESSION_CLIENTS = "clients";
@@ -51,11 +61,18 @@ public class CreationClient extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		/*
+         * Lecture du paramètre 'chemin' passé à la servlet via la déclaration
+         * dans le web.xml
+         */
+        String chemin = this.getServletConfig().getInitParameter( CHEMIN );
+		
 		/* Préparation de l'objet formulaire */
         CreationClientForm form = new CreationClientForm();
 
         /* Traitement de la requête et récupération du bean en résultant */
-        Client client = form.creerClient( request );
+        Client client = form.creerClient( request, chemin );
 
         /* Ajout du bean et de l'objet métier à l'objet requête */
         request.setAttribute( ATT_CLIENT, client );
