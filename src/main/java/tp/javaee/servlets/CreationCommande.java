@@ -15,6 +15,9 @@ import javax.servlet.http.HttpSession;
 
 import tp.javaee.beans.Client;
 import tp.javaee.beans.Commande;
+import tp.javaee.dao.ClientDao;
+import tp.javaee.dao.CommandeDao;
+import tp.javaee.dao.DAOFactory;
 import tp.javaee.forms.CreationCommandeForm;
 
 /**
@@ -32,6 +35,7 @@ public class CreationCommande extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/* Constantes */
+	public static final String CONF_DAO_FACTORY      = "daofactory";
 	public static final String CHEMIN       = "chemin";
 	public static final String ATT_COMMANDE = "commande";
     public static final String ATT_FORM     = "form";
@@ -40,6 +44,9 @@ public class CreationCommande extends HttpServlet {
 
     public static final String VUE_SUCCES   = "/WEB-INF/afficherCommande.jsp";
     public static final String VUE_FORM     = "/WEB-INF/creerCommande.jsp";
+    
+    private ClientDao          clientDao;
+    private CommandeDao        commandeDao;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -47,6 +54,12 @@ public class CreationCommande extends HttpServlet {
     public CreationCommande() {
         super();
         // TODO Auto-generated constructor stub
+    }
+    
+    public void init() throws ServletException {
+        /* Récupération d'une instance de nos DAO Client et Commande */
+        this.clientDao = ( (DAOFactory) getServletContext().getAttribute( CONF_DAO_FACTORY ) ).getClientDao();
+        this.commandeDao = ( (DAOFactory) getServletContext().getAttribute( CONF_DAO_FACTORY ) ).getCommandeDao();
     }
 
 	/**
@@ -69,7 +82,7 @@ public class CreationCommande extends HttpServlet {
         String chemin = this.getServletConfig().getInitParameter( CHEMIN );
 		
 		/* Préparation de l'objet formulaire */
-        CreationCommandeForm form = new CreationCommandeForm();
+        CreationCommandeForm form = new CreationCommandeForm(clientDao, commandeDao);
 
         /* Traitement de la requête et récupération du bean en résultant */
         Commande commande = form.creerCommande( request, chemin );
@@ -81,26 +94,27 @@ public class CreationCommande extends HttpServlet {
         if ( form.getErreurs().isEmpty() ) {
         	/* Alors récupération de la map des clients dans la session */
             HttpSession session = request.getSession();
-            Map<String, Client> clients = (HashMap<String, Client>) session.getAttribute( SESSION_CLIENTS );
+            Map<Long, Client> clients = (HashMap<Long, Client>) session.getAttribute( SESSION_CLIENTS );
             /* Si aucune map n'existe, alors initialisation d'une nouvelle map */
             if ( clients == null ) {
-                clients = new HashMap<String, Client>();
+                clients = new HashMap<Long, Client>();
             }
             /* Puis ajout du client de la commande courante dans la map */
-            clients.put( commande.getClient().getNom(), commande.getClient() );
+            clients.put( commande.getClient().getId(), commande.getClient() );
             /* Et enfin (ré)enregistrement de la map en session */
             session.setAttribute( SESSION_CLIENTS, clients );
- 
+
             /* Ensuite récupération de la map des commandes dans la session */
-            Map<String, Commande> commandes = (HashMap<String, Commande>) session.getAttribute( SESSION_COMMANDES );
+            Map<Long, Commande> commandes = (HashMap<Long, Commande>) session.getAttribute( SESSION_COMMANDES );
             /* Si aucune map n'existe, alors initialisation d'une nouvelle map */
             if ( commandes == null ) {
-                commandes = new HashMap<String, Commande>();
+                commandes = new HashMap<Long, Commande>();
             }
             /* Puis ajout de la commande courante dans la map */
-            commandes.put( commande.getDate(), commande );
+            commandes.put( commande.getId(), commande );
             /* Et enfin (ré)enregistrement de la map en session */
             session.setAttribute( SESSION_COMMANDES, commandes );
+
             /* Si aucune erreur, alors affichage de la fiche récapitulative */
             this.getServletContext().getRequestDispatcher( VUE_SUCCES ).forward( request, response );
         } else {
