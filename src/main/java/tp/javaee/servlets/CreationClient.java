@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import tp.javaee.beans.Client;
+import tp.javaee.dao.ClientDao;
+import tp.javaee.dao.DAOFactory;
 import tp.javaee.forms.CreationClientForm;
 
 /**
@@ -32,6 +34,7 @@ public class CreationClient extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	/* Constantes */
+	public static final String CONF_DAO_FACTORY = "daofactory";
 	public static final String CHEMIN     = "chemin";
 	public static final String ATT_CLIENT = "client";
     public static final String ATT_FORM   = "form";
@@ -39,6 +42,8 @@ public class CreationClient extends HttpServlet {
 
     public static final String VUE_SUCCES = "/WEB-INF/afficherClient.jsp";
     public static final String VUE_FORM   = "/WEB-INF/creerClient.jsp";
+    
+    private ClientDao          clientDao;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -46,6 +51,11 @@ public class CreationClient extends HttpServlet {
     public CreationClient() {
         super();
         // TODO Auto-generated constructor stub
+    }
+    
+    public void init() throws ServletException {
+        /* Récupération d'une instance de notre DAO Utilisateur */
+        this.clientDao = ( (DAOFactory) getServletContext().getAttribute( CONF_DAO_FACTORY ) ).getClientDao();
     }
 
 	/**
@@ -69,7 +79,7 @@ public class CreationClient extends HttpServlet {
         String chemin = this.getServletConfig().getInitParameter( CHEMIN );
 		
 		/* Préparation de l'objet formulaire */
-        CreationClientForm form = new CreationClientForm();
+        CreationClientForm form = new CreationClientForm(clientDao);
 
         /* Traitement de la requête et récupération du bean en résultant */
         Client client = form.creerClient( request, chemin );
@@ -81,13 +91,15 @@ public class CreationClient extends HttpServlet {
         if ( form.getErreurs().isEmpty() ) {
         	/* Alors récupération de la map des clients dans la session */
             HttpSession session = request.getSession();
-            Map<String, Client> clients = (HashMap<String, Client>) session.getAttribute( SESSION_CLIENTS );
+            Map<Long, Client> clients = (HashMap<Long, Client>) session.getAttribute( SESSION_CLIENTS );
             /* Si aucune map n'existe, alors initialisation d'une nouvelle map */
             if ( clients == null ) {
-                clients = new HashMap<String, Client>();
+                clients = new HashMap<Long, Client>();
             }
             /* Puis ajout du client courant dans la map */
-            clients.put( client.getNom(), client );
+            clients.put( client.getId(), client );
+            /* Et enfin (ré)enregistrement de la map en session */
+            session.setAttribute( SESSION_CLIENTS, clients );
             /* Et enfin (ré)enregistrement de la map en session */
             session.setAttribute( SESSION_CLIENTS, clients );
             /* Si aucune erreur, alors affichage de la fiche récapitulative */
