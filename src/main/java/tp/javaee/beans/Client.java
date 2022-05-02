@@ -1,14 +1,27 @@
 package tp.javaee.beans;
 
-public class Client {
-    /* Propriétés du bean */
+import java.io.Serializable;
+
+public class Client implements Serializable{
+    
+	private static final long serialVersionUID = 1L;
+	/* Propriétés du bean */
+	private Long   id;
     private String nom;
     private String prenom;
     private String adresse;
     private String telephone;
     private String email;
     private String image;
+    
+    public void setId( Long id ) {
+        this.id = id;
+    }
 
+    public Long getId() {
+        return id;
+    }
+    
     public void setNom( String nom ) {
         this.nom = nom;
     }
