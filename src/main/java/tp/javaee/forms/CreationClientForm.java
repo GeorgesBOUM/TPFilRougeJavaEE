@@ -14,8 +14,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
-import tp.javaee.beans.Client;
 import eu.medsea.mimeutil.MimeUtil;
+import tp.javaee.beans.Client;
+import tp.javaee.dao.ClientDao;
+import tp.javaee.dao.DAOException;
 
 public final class CreationClientForm {
 	private static final String CHAMP_NOM       = "nomClient";
@@ -24,11 +26,16 @@ public final class CreationClientForm {
     private static final String CHAMP_TELEPHONE = "telephoneClient";
     private static final String CHAMP_EMAIL     = "emailClient";
     private static final String CHAMP_IMAGE     = "imageClient";
-    
+
     private static final int    TAILLE_TAMPON   = 10240;                        // 10ko
 
     private String              resultat;
     private Map<String, String> erreurs         = new HashMap<String, String>();
+    private ClientDao           clientDao;
+
+    public CreationClientForm( ClientDao clientDao ) {
+        this.clientDao = clientDao;
+    }
 
     public Map<String, String> getErreurs() {
         return erreurs;
@@ -44,59 +51,85 @@ public final class CreationClientForm {
         String adresse = getValeurChamp( request, CHAMP_ADRESSE );
         String telephone = getValeurChamp( request, CHAMP_TELEPHONE );
         String email = getValeurChamp( request, CHAMP_EMAIL );
-        String image = null;
 
         Client client = new Client();
 
+        traiterNom( nom, client );
+        traiterPrenom( prenom, client );
+        traiterAdresse( adresse, client );
+        traiterTelephone( telephone, client );
+        traiterEmail( email, client );
+        traiterImage( client, request, chemin );
+
+        try {
+            if ( erreurs.isEmpty() ) {
+                clientDao.creer( client );
+                resultat = "Succès de la création du client.";
+            } else {
+                resultat = "Échec de la création du client.";
+            }
+        } catch ( DAOException e ) {
+            setErreur( "imprévu", "Erreur imprévue lors de la création." );
+            resultat = "Échec de la création du client : une erreur imprévue est survenue, merci de réessayer dans quelques instants.";
+            e.printStackTrace();
+        }
+
+        return client;
+    }
+
+    private void traiterNom( String nom, Client client ) {
         try {
             validationNom( nom );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_NOM, e.getMessage() );
         }
         client.setNom( nom );
+    }
 
+    private void traiterPrenom( String prenom, Client client ) {
         try {
             validationPrenom( prenom );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_PRENOM, e.getMessage() );
         }
         client.setPrenom( prenom );
+    }
 
+    private void traiterAdresse( String adresse, Client client ) {
         try {
             validationAdresse( adresse );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_ADRESSE, e.getMessage() );
         }
         client.setAdresse( adresse );
+    }
 
+    private void traiterTelephone( String telephone, Client client ) {
         try {
             validationTelephone( telephone );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_TELEPHONE, e.getMessage() );
         }
         client.setTelephone( telephone );
+    }
 
+    private void traiterEmail( String email, Client client ) {
         try {
             validationEmail( email );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_EMAIL, e.getMessage() );
         }
         client.setEmail( email );
-        
+    }
+
+    private void traiterImage( Client client, HttpServletRequest request, String chemin ) {
+        String image = null;
         try {
             image = validationImage( request, chemin );
         } catch ( FormValidationException e ) {
             setErreur( CHAMP_IMAGE, e.getMessage() );
         }
         client.setImage( image );
-
-        if ( erreurs.isEmpty() ) {
-            resultat = "Succès de la création du client.";
-        } else {
-            resultat = "Échec de la création du client.";
-        }
-
-        return client;
     }
 
     private void validationNom( String nom ) throws FormValidationException {
@@ -142,7 +175,7 @@ public final class CreationClientForm {
             throw new FormValidationException( "Merci de saisir une adresse mail valide." );
         }
     }
-    
+
     private String validationImage( HttpServletRequest request, String chemin ) throws FormValidationException {
         /*
          * Récupération du contenu du champ image du formulaire. Il faut ici
@@ -183,7 +216,7 @@ public final class CreationClientForm {
                  * commence par la chaîne "image"
                  */
                 if ( mimeTypes.toString().startsWith( "image" ) ) {
-                    /* Ecriture du fichier sur le disque */
+                    /* Écriture du fichier sur le disque */
                     ecrireFichier( contenuFichier, nomFichier, chemin );
                 } else {
                     throw new FormValidationException( "Le fichier envoyé doit être une image." );
@@ -237,7 +270,7 @@ public final class CreationClientForm {
             return valeur;
         }
     }
-    
+
     /*
      * Méthode utilitaire qui a pour unique but d'analyser l'en-tête
      * "content-disposition", et de vérifier si le paramètre "filename" y est
