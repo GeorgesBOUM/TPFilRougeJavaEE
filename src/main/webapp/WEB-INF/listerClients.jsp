@@ -9,7 +9,7 @@
         <link type="text/css" rel="stylesheet" href="<c:url value="/inc/style.css"/>" />
     </head>
     <body>
-        <c:import url="/inc/menu.jsp" />
+        <c:import url="/inc/menu.jsp" ></c:import>
         <div id="corps">
         <c:choose>
             <%-- Si aucun client n'existe en session, affichage d'un message par défaut. --%>
@@ -25,6 +25,7 @@
                     <th>Adresse</th>
                     <th>Téléphone</th>
                     <th>Email</th>
+                    <th>Image</th>
                     <th class="action">Action</th>                    
                 </tr>
                 <%-- Parcours de la Map des clients en session, et utilisation de l'objet varStatus. --%>
@@ -32,22 +33,22 @@
                 <%-- Simple test de parité sur l'index de parcours, pour alterner la couleur de fond de chaque ligne du tableau. --%>
                 <tr class="${boucle.index % 2 == 0 ? 'pair' : 'impair'}">
                     <%-- Affichage des propriétés du bean Client, qui est stocké en tant que valeur de l'entrée courante de la map --%>
-                    <td><c:out value="${ mapClients.value.nom }"/></td>
-                    <td><c:out value="${ mapClients.value.prenom }"/></td>
-                    <td><c:out value="${ mapClients.value.adresse }"/></td>
-                    <td><c:out value="${ mapClients.value.telephone }"/></td>
-                    <td><c:out value="${ mapClients.value.email }"/></td>
+                    <td><c:out value="${ mapClients.value.nom }"></c:out></td>
+                    <td><c:out value="${ mapClients.value.prenom }"></c:out></td>
+                    <td><c:out value="${ mapClients.value.adresse }"></c:out></td>
+                    <td><c:out value="${ mapClients.value.telephone }"></c:out></td>
+                    <td><c:out value="${ mapClients.value.email }"></c:out></td>
                     <td>
                         <%-- On ne construit et affiche un lien vers l'image que si elle existe. --%>
                         <c:if test="${ !empty mapClients.value.image }">
-                            <c:set var="image"><c:out value="${ mapClients.value.image }"/></c:set>
-                            <a href="<c:url value="/images/${ image }"/>">Voir</a>
+                            <c:set var="image"><c:out value="${ mapClients.value.image }"></c:out></c:set>
+                            <a href="<c:url value="/images/${ image }"></c:url></a>">Voir</a>
                         </c:if>
                     </td>
-                    <%-- Lien vers la servlet de suppression, avec passage du nom du client - c'est-à-dire la clé de la Map - en paramètre grâce à la balise <c:param/>. --%>
+                    <%-- Lien vers la servlet de suppression, avec passage du nom du client - c'est-à-dire la clé de la Map - en paramètre grâce à la balise <c:param></c:param>. --%>
                     <td class="action">
-                        <a href="<c:url value="/suppressionClient"><c:param name="nomClient" value="${ mapClients.key }" /></c:url>">
-                            <img src="<c:url value="/inc/supprimer.png"/>" alt="Supprimer" />
+                        <a href="<c:url value="/suppressionClient"><c:param name="idClient" value="${ mapClients.key }" ></c:param></c:url>">
+                            <img src="<c:url value="/inc/supprimer.png"></c:url>" alt="Supprimer" />
                         </a>
                     </td>
                 </tr>
