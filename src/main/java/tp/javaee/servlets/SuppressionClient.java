@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import tp.javaee.beans.Client;
+import tp.javaee.dao.ClientDao;
+import tp.javaee.dao.DAOException;
+import tp.javaee.dao.DAOFactory;
 
 /**
  * Servlet implementation class SuppressionClient
@@ -20,10 +23,14 @@ import tp.javaee.beans.Client;
 public class SuppressionClient extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
+	public static final String CONF_DAO_FACTORY = "daofactory";
+	public static final String PARAM_ID_CLIENT  = "idClient";
 	public static final String PARAM_NOM_CLIENT = "nomClient";
     public static final String SESSION_CLIENTS  = "clients";
 
     public static final String VUE              = "/listeClients";
+    
+    private ClientDao          clientDao;
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -32,22 +39,34 @@ public class SuppressionClient extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
+    
+    public void init() throws ServletException {
+        /* Récupération d'une instance de notre DAO Utilisateur */
+        this.clientDao = ( (DAOFactory) getServletContext().getAttribute( CONF_DAO_FACTORY ) ).getClientDao();
+    }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		/* Récupération du paramètre */
-        String nomClient = getValeurParametre( request, PARAM_NOM_CLIENT );
+        String idClient = getValeurParametre( request, PARAM_ID_CLIENT );
+        Long id = Long.parseLong( idClient );
 
         /* Récupération de la Map des clients enregistrés en session */
         HttpSession session = request.getSession();
-        Map<String, Client> clients = (HashMap<String, Client>) session.getAttribute( SESSION_CLIENTS );
+        Map<Long, Client> clients = (HashMap<Long, Client>) session.getAttribute( SESSION_CLIENTS );
 
-        /* Si le nom du client et la Map des clients ne sont pas vides */
-        if ( nomClient != null && clients != null ) {
-            /* Alors suppression du client de la Map */
-            clients.remove( nomClient );
+        /* Si l'id du client et la Map des clients ne sont pas vides */
+        if ( id != null && clients != null ) {
+            try {
+                /* Alors suppression du client de la BDD */
+                clientDao.supprimer( clients.get( id ) );
+                /* Puis suppression du client de la Map */
+                clients.remove( id );
+            } catch ( DAOException e ) {
+                e.printStackTrace();
+            }
             /* Et remplacement de l'ancienne Map en session par la nouvelle */
             session.setAttribute( SESSION_CLIENTS, clients );
         }
